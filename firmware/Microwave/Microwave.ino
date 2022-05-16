@@ -5,7 +5,7 @@
 #define BTN_START D5
 #define BTN_STOP  D6
 #define BTN_DOOR  D7
-#define RELE D1               			// Relay on D1 pin
+#define RELAY D1               			// Relay on D1 pin
 
 #include <TM1637.h>
 
@@ -25,10 +25,10 @@ void setup() {
   pinMode(BTN_START, INPUT_PULLUP);
   pinMode(BTN_STOP,  INPUT_PULLUP);
   pinMode(BTN_DOOR,  INPUT_PULLUP);
-  pinMode(RELE, OUTPUT);
+  pinMode(RELAY, OUTPUT);
   pinMode(SOUND_PIN, OUTPUT);
   
-  digitalWrite(RELE, LOW);          	// Relay Off on Startup
+  digitalWrite(RELAY, LOW);          	// Relay Off on Startup
   digitalWrite(SOUND_PIN, LOW);
   Mode = 0;
   Timer = 0;
@@ -53,7 +53,7 @@ void loop() {
     if (Timer == 0){ 
       Mode = 0;
       btnTime = millis();
-      digitalWrite(RELE, LOW);      	// Relay Off
+      digitalWrite(RELAY, LOW);      	// Relay Off
       TM1637KL.point(POINT_OFF);
       ShowTimer();
     } else {
@@ -94,7 +94,7 @@ void buttonTick() {
     }
     if (Mode == 2) {                        // If RUN, then PAUSE
       Mode = 1;
-      digitalWrite(RELE, LOW);              // Relay Off
+      digitalWrite(RELAY, LOW);             // Relay Off
     }
     btnFlag1 = true;
     Beep();
@@ -108,7 +108,7 @@ void buttonTick() {
     if (!btnFlag3) {
       if (Mode == 2) {                        // If RUN, then PAUSE
         Mode = 1;
-        digitalWrite(RELE, LOW);              // Relay Off
+        digitalWrite(RELAY, LOW);             // Relay Off
       }
       btnFlag3 = true;
     }
@@ -124,14 +124,14 @@ void buttonTick() {
   if (!digitalRead(BTN_START) && !btnFlag2) {
     if (Mode == 1) {                        // If PAUSE, then RUN 
       Mode = 2;
-      digitalWrite(RELE, HIGH);             // Relay On
+      digitalWrite(RELAY, HIGH);            // Relay On
       oldTime = millis();                   // Save On Time
     } else {                                // If STOP or RUN, then RUN
       Mode = 2;
       Timer = Timer + 30;
       TM1637KL.point(POINT_ON);
       ShowTimer();
-      digitalWrite(RELE, HIGH);             // Relay On
+      digitalWrite(RELAY, HIGH);            // Relay On
       oldTime = millis();                   // Save On Time
     }
     btnFlag2 = true;
