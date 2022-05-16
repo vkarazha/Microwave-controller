@@ -58,13 +58,13 @@ void loop() {
       ShowTimer();
     } else {
       newTime =  millis();          	// Get current time
-      deltaTime = deltamills(oldTime, newTime); // Разница времени простоя
-      if (deltaTime > 1000) {       	// Если разница времени 1 секунда
+      deltaTime = deltamills(oldTime, newTime); // Downtime
+      if (deltaTime > 1000) {       	// if downtime > 1 second
         Timer--;	
         TM1637KL.point(POINT_ON);
         ShowTimer();
         if (Timer < 4 ) { Beep(); }
-        oldTime = millis();         	// Запоминаем время начала работы
+        oldTime = millis();         	// Save as start time
       }  
     }
   }
@@ -83,22 +83,21 @@ void ShowTimer() {
   TM1637KL.display(Digits);
 }
 
-// Функция обработки кнопок
+// Button processing function
 void buttonTick() {
   if (!digitalRead(BTN_STOP) && !btnFlag1) {
-    if (Mode == 1) {                        // Если PAUSE, то STOP
+    if (Mode == 1) {                        // If PAUSE, then STOP
       Mode = 0;
       Timer = 0;
       TM1637KL.point(POINT_OFF);
       ShowTimer();
     }
-    if (Mode == 2) {                        // Если RUN, то PAUSE
+    if (Mode == 2) {                        // If RUN, then PAUSE
       Mode = 1;
-      digitalWrite(RELE, LOW);              // Выключаем реле
+      digitalWrite(RELE, LOW);              // Relay Off
     }
     btnFlag1 = true;
     Beep();
-//  btnTime = millis(); // перенес в Beep()
   }
   
   if (digitalRead(BTN_STOP) && btnFlag1) {
@@ -107,9 +106,9 @@ void buttonTick() {
   
   if (digitalRead(BTN_DOOR)) {             
     if (!btnFlag3) {
-      if (Mode == 2) {                        // Если RUN, то PAUSE
+      if (Mode == 2) {                        // If RUN, then PAUSE
         Mode = 1;
-        digitalWrite(RELE, LOW);              // Выключаем реле
+        digitalWrite(RELE, LOW);              // Relay Off
       }
       btnFlag3 = true;
     }
@@ -123,21 +122,20 @@ void buttonTick() {
   }
 
   if (!digitalRead(BTN_START) && !btnFlag2) {
-    if (Mode == 1) {                        // Если PAUSE, то RUN 
+    if (Mode == 1) {                        // If PAUSE, then RUN 
       Mode = 2;
-      digitalWrite(RELE, HIGH);              // Включаем реле
-      oldTime = millis();                   // Записываем время включения
-    } else {                                 // Если STOP или RUN, то RUN
+      digitalWrite(RELE, HIGH);             // Relay On
+      oldTime = millis();                   // Save On Time
+    } else {                                // If STOP or RUN, then RUN
       Mode = 2;
       Timer = Timer + 30;
       TM1637KL.point(POINT_ON);
       ShowTimer();
-      digitalWrite(RELE, HIGH);             // Включаем реле
-      oldTime = millis();                   // Записываем время включения
+      digitalWrite(RELE, HIGH);             // Relay On
+      oldTime = millis();                   // Save On Time
     }
     btnFlag2 = true;
     Beep();
-//  btnTime = millis(); // перенес в Beep()
   }
   
   if (digitalRead(BTN_START) && btnFlag2) {
@@ -145,7 +143,7 @@ void buttonTick() {
   }
 }
 
-// Функция вычисления разницы времени
+// Time difference calculation function
 unsigned long deltamills(unsigned long t_old, unsigned long t_new) {
   unsigned long delta;
   if ( t_old <= t_new ) {        
@@ -157,7 +155,7 @@ unsigned long deltamills(unsigned long t_old, unsigned long t_new) {
 }
 
 void Beep() {
-  analogWrite(SOUND_PIN, 50); // включаем пьезоизлучатель 
+  analogWrite(SOUND_PIN, 50); 				// turn on the piezo emitter
   Sound_On = true;
   btnTime = millis(); 
 }
