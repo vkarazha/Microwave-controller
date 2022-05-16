@@ -1,50 +1,50 @@
-/*   Микроволновка   */
+/*   Microwave Controller   */
 
 // пины
 #define SOUND_PIN D0
 #define BTN_START D5
 #define BTN_STOP  D6
 #define BTN_DOOR  D7
-#define RELE D1               // Relay on D1 pin
+#define RELE D1               			// Relay on D1 pin
 
 #include <TM1637.h>
 
-TM1637 TM1637KL(D3, D2);// CLK,DIO
+TM1637 TM1637KL(D3, D2);				// CLK, DIO
 int8_t Digits[] = {0x7f, 0x7f, 0x7f, 0x7f};
 boolean btnFlag1, btnFlag2, btnFlag3, Sound_On;
-unsigned long oldTime;              // Старое время
-unsigned long newTime;              // Текущее время
-unsigned long btnTime;              // Текущее время
-unsigned long deltaTime;            // Разница времени
-int Mode = 0, Timer, Minutes, Seconds;        // Текущее время таймера, Mode = 0-Stop, 1-Pause, 2-Run
+unsigned long oldTime;              
+unsigned long newTime;              
+unsigned long btnTime;              
+unsigned long deltaTime;            
+int Mode = 0, Timer, Minutes, Seconds; 	// Current timer time, Mode = 0-Stop, 1-Pause, 2-Run
 
 void setup() {
   Serial.begin(115200);
   TM1637KL.init();
-  TM1637KL.set(3);                  // Яркость 0-7
+  TM1637KL.set(3);                  	// Screen Brightness: 0-7
   pinMode(BTN_START, INPUT_PULLUP);
   pinMode(BTN_STOP,  INPUT_PULLUP);
   pinMode(BTN_DOOR,  INPUT_PULLUP);
   pinMode(RELE, OUTPUT);
   pinMode(SOUND_PIN, OUTPUT);
   
-  digitalWrite(RELE, LOW);          // При загрузке реле отключено
+  digitalWrite(RELE, LOW);          	// Relay Off on Startup
   digitalWrite(SOUND_PIN, LOW);
   Mode = 0;
   Timer = 0;
   TM1637KL.point(POINT_OFF);
   ShowTimer();
-  btnTime = millis();         // Запоминаем время начала работы
+  btnTime = millis();         			// Start time
  }
 
 void loop() {
-  newTime =  millis();          // Получаем текущее время
+  newTime =  millis();          		// Get current time
 
-  deltaTime = deltamills(btnTime, newTime); // Устранение дребезга контактов
+  deltaTime = deltamills(btnTime, newTime); // Contact bounce elimination
   if (deltaTime > 300) { 
     if (Sound_On) { 
-      analogWrite(SOUND_PIN, 0); // выключаем звук 
-      Sound_On = false;
+      analogWrite(SOUND_PIN, 0); 		// Sound Off 
+      Sound_On = false;		
     }
     buttonTick(); 
   }  
@@ -53,18 +53,18 @@ void loop() {
     if (Timer == 0){ 
       Mode = 0;
       btnTime = millis();
-      digitalWrite(RELE, LOW);      // Выключаем реле
+      digitalWrite(RELE, LOW);      	// Relay Off
       TM1637KL.point(POINT_OFF);
       ShowTimer();
     } else {
-      newTime =  millis();          // Получаем текущее время
+      newTime =  millis();          	// Get current time
       deltaTime = deltamills(oldTime, newTime); // Разница времени простоя
-      if (deltaTime > 1000) {       // Если разница времени 1 секунда
-        Timer--;
+      if (deltaTime > 1000) {       	// Если разница времени 1 секунда
+        Timer--;	
         TM1637KL.point(POINT_ON);
         ShowTimer();
         if (Timer < 4 ) { Beep(); }
-        oldTime = millis();         // Запоминаем время начала работы
+        oldTime = millis();         	// Запоминаем время начала работы
       }  
     }
   }
